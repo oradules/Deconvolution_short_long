@@ -4,19 +4,33 @@ version : April 2021
 
 Written by Ovidiu Radulescu, University of Montpellier
 Copyright : This is published under 3-clause BSD
+  
  
 The package consists of the following main programs, to be executed in order:  
 
-1) read_raw_long_movie_data.m reads long movie data from raw files. Needs the data files
+1) read_raw_long_movie_data.m reads long movie data from raw files. Needs the data files in data_long
 
-2) read_short_movie_data.m reads short movie data from files. Needs the data files
+requirements: matlab version R2003b or higher
+execution time : 60 s
+
+2) read_short_movie_data.m reads short movie data from files. Needs the data files in data_short
+
+requirements: matlab version R2003b or higher
+execution time : 60s 
 
 3) Deconvol.m applies the deconvolution algorithm. It uses the variable DataExp and generates the Matlab variables 
 DataPred, cPosPred and Fit, corresponding to predicted intensity data, predicted Pol II positions, and best fit 
 values of the objective function, respectively. The genetic algorithm is implemented using the Matlab function ga. 
 By default it uses 50 workers (50 cores). 
-This step is computationally expensive. It generates the file result_name_cPosPred.mat. The next step can be tested
+You can change the default by changing the commands
+set(mycluster,'NumWorkers',50) ; %%% change max number of workers
+parpool(mycluster,min([nloops,50])); %%% open a pool of workers 
+
+Generates the file result_name_cPosPred.mat. The next step can be tested
 independently if the result file is already available. 
+
+requirements:  matlab version R2003b or higher, parallel computing, global optimization toolboxes, multicore computer
+execution time: this step is computationally expensive. 3600s using 50 cores 
 
 4) fit_unconstrained_2exp.m or fit_unconstrained_3exp.m perform the multi-exponential unconstrained regression fitting and compute 
 the model parameters for two and 
@@ -27,10 +41,14 @@ function is performed using the Matlab function lsqnonlin.
 The output of fit_unconstrained_2exp.m is a set of parameters for the ON/OFF telegraph model. 
 The output of fit_unconstrained_3exp.m is a set of parameters for two types of 3 states models, referenced here as M1 and M2.   
 
+requirements: matlab version R2003b or higher, optimization toolbox
+execution time: 600s
+
 5) fit_constrained_3exp.m performs the 3-exponential regression fitting constrained by the relation 
 A1 lambda1 + A2 lambda2 + A3 lambda3 = 0 corresponding to model M3
 
- 
+requirements: matlab version R2003b or higher, optimization toolbox
+execution time: 600s
 
 Copyright (c) 2020, Ovidiu Radulescu, University of Montpellier
 All rights reserved.
