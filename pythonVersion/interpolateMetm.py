@@ -21,9 +21,10 @@ def  interpolateMetm(uxsg, ufsg, uxl, ufl, m, M, fact1, fact2):
     
     mn=5000
     tt = np.linspace(0, 1, mn);
-    xx = interpolate.interp1d(t,xss, kind = 'cubic')(tt)
-    yy = interpolate.interp1d(t,yss, kind = 'cubic')(tt)
-    
+#     xx = interpolate.interp1d(t,xss, kind = 'cubic')(tt)
+#     yy = interpolate.interp1d(t,yss, kind = 'cubic')(tt)
+    xx = interpolate.PchipInterpolator(t,xss)(tt)
+    yy = interpolate.PchipInterpolator(t,yss)(tt)    
 
     # plt.plot(xss,yss,'ro');
     # plt.plot(xx, yy, 'b', 'LineWidth', 1.5);
@@ -34,14 +35,16 @@ def  interpolateMetm(uxsg, ufsg, uxl, ufl, m, M, fact1, fact2):
     
     mn=5000
     ttl = np.linspace(0, 1, mn);
-    xxl =  interpolate.interp1d(t,xll, kind = 'cubic')(ttl)
-    yyl =  interpolate.interp1d(t,yll, kind = 'cubic')(ttl)
+#    xxl =  interpolate.interp1d(t,xll, kind = 'cubic')(ttl)
+#    yyl =  interpolate.interp1d(t,yll, kind = 'cubic')(ttl)
     
+    xxl =  interpolate.PchipInterpolator(t,xll)(ttl)
+    yyl =  interpolate.PchipInterpolator(t,yll)(ttl)    
 
-    # plt.plot(xss,yss,'ro')
-    # plt.plot(xxl, yyl, 'b', 'LineWidth', 1.5);
-    # plt.plot(xll,yll, 'ro');
-    # plt.plot(xx, yy, 'g', 'LineWidth', 1.5);
+#     plt.plot(xss,yss,'ro')
+#     plt.plot(xxl, yyl, 'b', 'LineWidth', 1.5);
+#     plt.plot(xll,yll, 'ro');
+#     plt.plot(xx, yy, 'g', 'LineWidth', 1.5);
     
     
     M_ = max(uxsg)/fact2;
@@ -62,6 +65,6 @@ def  interpolateMetm(uxsg, ufsg, uxl, ufl, m, M, fact1, fact2):
     ux1, ux1i = np.unique(x1, return_index=True)
     x1 = x1[ux1i];
     ytest = ytest[ux1i];
-    y1 = interpolate.interp1d(x1, ytest, kind = 'cubic')(xt)
-
+    #y1 = interpolate.interp1d(x1, ytest, kind = 'cubic')(xt)
+    y1 = interpolate.PchipInterpolator(x1, ytest)(xt)
     return y1, y2

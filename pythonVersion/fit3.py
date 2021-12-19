@@ -21,7 +21,7 @@ def fit3(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
     outliers_long = 1
     Ominmin=1e6
     optimalParams = []
-    for ibig in range(3):
+    for ibig in np.arange(1):
         alpha = round(0.9 - ibig * 0.3, 4)
         for cens in range(2):
             Kstore = np.empty((0,6)) # will store parameter and objective function values
@@ -33,6 +33,7 @@ def fit3(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
             #name = name + str(100*alpha)                   
 
             for nnn in range(0,7, 2):
+                neg=0
                 #print('nnn = {}'.format(nnn))
                 wwt= np.append(wt,wtc)+3*(nnn)*60/2 ### shifted distribution from 0 t0 6 min        
                 shift=3*nnn/2 #### shift in minutes        
@@ -48,6 +49,7 @@ def fit3(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
                     a=3*60 # a is Pmin
                     Tinactive =sum(wwt)
                     Tactive = Total-Tinactive
+                    neg = 1
 
                 Nactive = Ninactive - lDEL #### number of active periods
                 imax=max(np.where(xsg<a)[0])
@@ -94,7 +96,7 @@ def fit3(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
                 p2=k #this is ps
                 #############################################################
 
-                if visualize and not ibig:                    
+                if visualize:                    
                     h=plt.figure(200+nnn)
                     plt.loglog(xsg, (1-fsg)*(1-p2)+p2, label='short movie', marker='o',color='green',linestyle='', mfc='none')
                     plt.loglog(xl, (1-fl)*p1,label='long movie',marker='o', color='black',linestyle='', mfc='none')
@@ -151,7 +153,8 @@ def fit3(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
                     figfile=dirwrite+'/figure3_3exp_shift'+str(nnn)+'_cens'+str(cens)+'.pdf'
                     h.savefig(figfile)
                     plt.close()
-
+                if neg==1:
+                    break
             if visualize:
                 ############ visualize optimal optimal fit 
                 h=plt.figure(1000)
@@ -184,7 +187,7 @@ def fit3(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
                 plt.legend()
                 plt.title(label='cens='+ str(censmin)+'\u0394\u2080='+str(int(shiftmin))+'Obj='+ str(round(Ominmin,5)),fontsize=fsz)
                 plt.show
-                figfile=dirwrite+'/figure4_optimal_3exp_'+name+'_cens'+str(censmin)+'.pdf'
+                figfile=dirwrite+'/figure4_optimal_3exp_'+name+'alpha'+str(alphamin)+'_cens'+str(censmin)+'.pdf'
                 h.savefig(figfile)
                 plt.close()
                 fname = dirwrite+'/figure3_optimal_3exp_'+name+'alpha'+str(alphamin)+'_cens'+str(int(censmin))

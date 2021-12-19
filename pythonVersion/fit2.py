@@ -33,6 +33,7 @@ def fit2(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
             #name = name + str(100*alpha)                   
 
             for nnn in range(0,7, 2):
+                neg=0
                 #print('nnn = {}'.format(nnn))
                 wwt= np.append(wt,wtc)+3*(nnn)*60/2 ### shifted distribution from 0 t0 6 min        
                 shift=3*nnn/2 #### shift in minutes        
@@ -40,6 +41,7 @@ def fit2(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
                 a=3*60 # a is Pmin
                 Tinactive =sum(wwt)
                 Tactive = Total-Tinactive
+                print('Tactive = ',Tactive, 'nnn = ', nnn)
                 if Tactive<0:
                     nnn = nnn - 2
                     wwt= np.append(wt,wtc)+3*(nnn)*60/2 ### shifted distribution from 0 t0 6 min
@@ -48,7 +50,7 @@ def fit2(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
                     a=3*60 # a is Pmin
                     Tinactive =sum(wwt)
                     Tactive = Total-Tinactive
-
+                    neg = 1
                 Nactive = Ninactive - lDEL #### number of active periods
                 imax=max(np.where(xsg<a)[0])
                 imin= min(np.where(xsg>a)[0])
@@ -60,7 +62,7 @@ def fit2(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
                 f = f1 + (f2-f1)*(a-x1)/(x2-x1) # 1-S(a) based on the triangle function
                 esp=(-a*(1-f)+np.trapz(1-fsg[xsg<a],xsg[xsg<a]))/f #espectation of the waiting time
                 estp1= Ninactive/(Ninactive + Tactive/esp)
-
+                print('estp1 ',estp1)
                 ##################################################################
                 ########### long movie
 
@@ -81,14 +83,14 @@ def fit2(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
 
                 ##### interpolate on [m,M];
                 y1,y2 = interpolateMetm(uxsg, ufsg, uxl, ufl, m, M, fact1, fact2)
-
+                #print(y1,y2)
                 ##########################################################
                 ################### Estimating p2  #######################
                 p1=estp1 # this is p_l
                 def objective(k):
 
                     return np.log((1-y2)*p1) - np.log((1-y1)*(1-k) + k)
-                k0= 0.2
+                k0= 0.01
                 k = least_squares(objective, k0, bounds=(0,1), ftol = (1e-15), max_nfev= 1e6, xtol= (1e-10)).x
                 obj = sum(objective(k)**2)
                 p2=k #this is ps
@@ -111,6 +113,7 @@ def fit2(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
 
                 #%%%% fit distribution of spacings using combination of 2 exponentials. 3 
                 #%%%% params
+
 
                 kmin, OBJ, Kstore, optimalParams = fitSumOf2ExponentialsMain(xsg, xl, fsg, fl, p1, p2, alpha,cens, nnn, Kstore, Ominmin, optimalParams);
                 #%optimalParams = {Ominmin ,kminmin,shiftmin,p1min,p2min,fsgmin,losmin,upsmin,flmin,lolmin,uplmin,xlmin,xsgmin,mw1opt,censmin}
@@ -154,6 +157,8 @@ def fit2(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactiv
                     h.savefig(figfile)
                     plt.close()
 
+                if neg==1:
+                    break
             if visualize:
                 ############ visualize optimal optimal fit 
                 h=plt.figure(1000)

@@ -59,6 +59,7 @@ def fitSumOf2ExponentialsMain(xsg, xl, fsg, fl, p1, p2, alpha, cens, nnn, Kstore
         for mc in range(NbIterationinFit):
             test=0
             while test==0: #test is just to re-do the iteration until we encounter no error
+                flag=1
                 #print('trying least squares for mc = {}'.format(mc))
                 k0=np.zeros(3)
                 #### first try
@@ -81,7 +82,12 @@ def fitSumOf2ExponentialsMain(xsg, xl, fsg, fl, p1, p2, alpha, cens, nnn, Kstore
                         obj = sum(exp_fitness(k)**2)
                         test = 1
                     except:
+                        #print('value not found!')
+                        flag=0
                         pass
+                    if flag==0:
+                        k=np.zeros((3))
+                        obj = Omin + 1
                     if (obj < Omin) and sum(k.imag)==0:
                        Omin=obj; #%%%% optimal objective function
                        kmin=k;   #%%%% optimal parameters

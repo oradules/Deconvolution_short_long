@@ -51,7 +51,7 @@ def fitSumOf3ExponentialsMain(xsg, xl, fsg, fl, los, ups, lol, upl, p1, p2, alph
  
     
     #%%%%%%% initial guess     
-    k00= np.array([-0.1,-0.01,-0.001,0.25,0.25], dtype= np.float64)
+    k00= np.array([-0.01,-0.01,-0.001,0.25,0.25], dtype= np.float64)
     k0=np.zeros((5))
     amp = np.array([np.log(100),np.log(100), np.log(100)], dtype= np.float32)   
     NbIterationinFit=100      
@@ -60,8 +60,9 @@ def fitSumOf3ExponentialsMain(xsg, xl, fsg, fl, los, ups, lol, upl, p1, p2, alph
     if dofit:
         for mc in range(NbIterationinFit):
             test=0
-            print(mc)
+            #print(mc)
             while test==0: #test is just to re-do the iteration until we encounter no error
+                flag=1
                 print('trying least squares for mc = {}'.format(mc))
                 #### first try #### Change k00
                 factor= np.exp(amp*(2*np.random.uniform(size=3)-1))
@@ -71,7 +72,7 @@ def fitSumOf3ExponentialsMain(xsg, xl, fsg, fl, los, ups, lol, upl, p1, p2, alph
                     while not ((k0[0] < k0[1]) and (k0[1] < k0[2]) and (not np.any(np.isinf(k0[0:3])))):
                         factor = np.exp(amp*(2*np.random.rand(3)-1))
                         k0[0:3] = k00[0:3]*factor
-                        print('while 1')
+                        #print('while 1')
                         #print(k0)
                     # end of while    
                 #end of if
@@ -79,10 +80,10 @@ def fitSumOf3ExponentialsMain(xsg, xl, fsg, fl, los, ups, lol, upl, p1, p2, alph
                 if not constraint0(k0):
                     while not constraint0(k0):
                         k0[3:] =  2*np.random.rand(2)-1 
-                        print('while 2')
+                        #print('while 2')
                 e0 = exp_fitness(k0)           
                 if all(np.isfinite(e0)) and all(e0.imag==0):
-                    print('sorting')
+                    #print('sorting')
                     Atemp = np.asarray([k0[3],k0[4], 1-k0[3]-k0[4]]) # A values before sorting 
                     kk_temp = np.sort(k0[0:3])
                     IX = np.argsort(k0[0:3])
@@ -90,13 +91,18 @@ def fitSumOf3ExponentialsMain(xsg, xl, fsg, fl, los, ups, lol, upl, p1, p2, alph
                     Atemp=Atemp[IX]
                     k0[3:5]=Atemp[0:2]                    
                     try:
-                        print('trying lsq')
+                        #print('trying lsq')
                         k = least_squares(exp_fitness, k0, bounds=(-np.inf,[0,0,0,np.inf,np.inf]), ftol = (1e-8), max_nfev= 1e6, xtol= (1e-10)).x
                         obj = sum(exp_fitness(k)**2)
                         test = 1
-                        print('value found!')                        
+                        #print('value found!')                        
                     except:
+                        #print('value not found!')
+                        flag=0
                         pass
+                    if flag==0:
+                        k=np.zeros((5))
+                        obj = Omin + 1
                     Atemp = np.asarray([k[3],k[4], 1-k[3]-k[4]]) # A values before sorting 
                     kk_temp = np.sort(k[0:3])
                     IX = np.argsort(k[0:3])
