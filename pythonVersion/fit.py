@@ -23,13 +23,14 @@ from constraint0 import constraint0
 from interpolateMetm import interpolateMetm
 from fitSumOf2ExponentialsMain import fitSumOf2ExponentialsMain
 #from fitSumOf3ExponentialsMain import *
+from fitSumOf3ExponentialsMainTest import *
 from fitSumOf3ExponentialsContrained import fitSumOf3ExponentialsContrained
 from scipy import interpolate
 from scipy.optimize import least_squares
 from fit2 import *
-from fit3 import *
-#from common_fit2_part import fit2
-#from common_fit3_part import fit3
+#from fit3 import *
+from fit3_common import *
+
 
 
 class fit:
@@ -356,6 +357,8 @@ class fit:
                 fid.writelines([' \n'+ str(timesline/60)])
                 indices = cPosPred[0,i][0] #### indice is the estimate position of polymerase for each cell
                 times = indices / FreqEchSimu ### last transcription in the movie
+                if np.size(times)==0:
+                    times=[0] 
                 Mtimes=max(times)
 
                 if Mtimes > tmax:
@@ -456,7 +459,7 @@ class fit:
             df2.to_excel(writer2states,sheet_name='Sheet1', startrow=4*(1+ifile)-3, startcol=0, header=False, index=False)            
         
             ########## save parameters results for 3 state model
-            [resM1, reslM1, reshM1]=fit3(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactive,visualize,time,sd)
+            [resM1, reslM1, reshM1, resM2, reslM2, reshM2]=fit3_common(dirwrite,name,dt,dtg,censored,censored_short,wt,wtc,lDEL,Total,Ninactive,visualize,time,sd)
             
             #### Model M1            
             df1M1 = pd.DataFrame([resM1.tolist(), #best result
@@ -467,5 +470,15 @@ class fit:
             df2M1 = pd.DataFrame([name.replace('result_','')]) #filename
             df2M1.to_excel(writer3statesM1,sheet_name='Sheet1', startrow=4*(ifile+1)-3, startcol=0, header=False, index=False)
 
+            #### Model M2            
+            df1M2 = pd.DataFrame([resM2.tolist(), #best result
+                    reslM2.tolist(), # low 
+                    reshM2.tolist()]) # high
+            
+            df1M2.to_excel(writer3statesM2,sheet_name='Sheet1', startrow=4*(ifile+1)-3, startcol=1, header=False, index=False)
+            df2M2 = pd.DataFrame([name.replace('result_','')]) #filename
+            df2M2.to_excel(writer3statesM2,sheet_name='Sheet1', startrow=4*(ifile+1)-3, startcol=0, header=False, index=False)
+
         writer2states.save()
         writer3statesM1.save()
+        writer3statesM2.save()
