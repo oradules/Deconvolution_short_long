@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import math
 import random
 from interpolateMetm import interpolateMetm
-from fitSumOf3ExponentialsMainTest import *
+from fitSumOf3ExponentialsMain import *
 #from fitSumOf3ExponentialsContrained import fitSumOf3ExponentialsContrained
 from scipy import interpolate
 from scipy.optimize import least_squares
